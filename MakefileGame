@@ -11,9 +11,9 @@ BUILD_PRX = 1
 PSP_FW_VERSION=371
 PSP_LARGE_MEMORY = 1
 
-LIBDIR += ./
+LIBDIR += 
 LDFLAGS =
-LIBS= -lpspmath -lpspaudiolib -lpspaudio -lmikmod -lpspaudiocodec -lpng -lz -lpspgum -lpspgu -lstdc++ -lpsprtc -lpspctrl -lm -lpspvfpu -lpspsdk -lpsppower -lpsphttp #-lpsp_req -lcurl -lTiny
+LIBS= -lpspaudiolib -lpspaudio -lmikmod -lpspaudiocodec -lpng -lz -lpspgum -lpspgu -lstdc++ -lpsprtc -lpspctrl -lm -lpspvfpu -lpspsdk -lpsppower -lpsphttp #-lpsp_req -lcurl -lTiny
 
 EXTRA_TARGETS = EBOOT.PBP
 PSP_EBOOT_TITLE = PSPRTX
