@@ -125,6 +125,9 @@ Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &s
 
 
 u64 finalTick;
+u32 tickRes;
+u64 lastTick;
+
 void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights) {
     const int   width    = 480;
     const int   height   = 272;
@@ -160,6 +163,30 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
     }
     ofs.close();
     pspDebugScreenPrintf("CLOSE!\n");
+
+    
+    double dt = ((double)finalTick - (double)lastTick) / (double)tickRes;
+    pspDebugScreenPrintf("BENCHMARK TIME: %.3f seconds", dt);
+    sceKernelDelayThread(1000 * 1000);
+
+    for (size_t i = 0; i < height * width; ++i) {
+        Vec3f& c = framebuffer[i];
+        float max = std::max(c[0], std::max(c[1], c[2]));
+        if (max > 1) c = c * (1. / max);
+
+        char* ccc = (char*)0x44000000;
+
+        int rows = i / 480;
+        int columnOff = i % 480;
+
+        for (size_t j = 0; j < 4; j++) {
+            if (j == 3) {
+                ccc[rows * 4 + j] = 255;
+                break;
+            }
+            ccc[rows * 512 * 4 + columnOff * 4 + j] = (char)(255 * std::max(0.f, std::min(1.f, framebuffer[i][j])));
+        }
+    }
 }
 
 int main() {
@@ -167,8 +194,6 @@ int main() {
     scePowerSetClockFrequency(333, 333, 166);
     pspDebugScreenInit();
 
-    u32 tickRes;
-    u64 lastTick;
     tickRes = sceRtcGetTickResolution();
 
 
@@ -195,12 +220,7 @@ int main() {
     render(spheres, lights);
 
 
-
-    double dt = ((double)finalTick - (double)lastTick) / (double)tickRes;
-
-    pspDebugScreenPrintf("BENCHMARK TIME: %.3f seconds", dt);
-
-    sceKernelDelayThread(1000 * 1000);
+    sceKernelDelayThread(5000 * 1000);
 
     sceKernelExitGame();
     return 0;
