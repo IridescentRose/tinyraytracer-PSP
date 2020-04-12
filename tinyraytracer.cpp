@@ -130,7 +130,6 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
 
     for (size_t j = 0; j<height; j++) { // actual rendering loop
         for (size_t i = 0; i<width; i++) {
-            pspDebugScreenPrintf("PIXEL: %d %d!\n", j, i);
             float dir_x =  (i + 0.5) -  width/2.;
             float dir_y = -(j + 0.5) + height/2.;    // this flips the image at the same time
             float dir_z = -height/(2.*tan(fov/2.));
@@ -146,8 +145,6 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
     ofs << "P6\n" << width << " " << height << "\n255\n";
     pspDebugScreenPrintf("HEADER!\n");
     for (size_t i = 0; i < height*width; ++i) {
-
-        pspDebugScreenPrintf("WRITE %d!\n", i);
         Vec3f &c = framebuffer[i];
         float max = std::max(c[0], std::max(c[1], c[2]));
         if (max>1) c = c*(1./max);
