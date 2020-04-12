@@ -165,7 +165,6 @@ int main() {
     u64 lastTick;
     tickRes = sceRtcGetTickResolution();
 
-    sceRtcGetCurrentTick(&lastTick);
 
     Material      ivory(1.0, Vec4f(0.6,  0.3, 0.1, 0.0), Vec3f(0.4, 0.4, 0.3),   50.);
     Material      glass(1.5, Vec4f(0.0,  0.5, 0.1, 0.8), Vec3f(0.6, 0.7, 0.8),  125.);
@@ -185,6 +184,8 @@ int main() {
 		
     pspDebugScreenSetXY(0, 0);
 	pspDebugScreenPrintf("RENDER!\n");
+
+    sceRtcGetCurrentTick(&lastTick);
     render(spheres, lights);
 
 
