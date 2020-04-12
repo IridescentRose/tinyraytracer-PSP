@@ -45,6 +45,7 @@ struct Sphere {
 
 #include <pspkernel.h>
 #include <pspdebug.h>
+#include <psprtc.h>
 
 PSP_MODULE_INFO("TinyRayTracer", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_VFPU | THREAD_ATTR_USER);
@@ -159,6 +160,13 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
 int main() {
 
     pspDebugScreenInit();
+
+    u32 tickRes;
+    u64 lastTick;
+    tickRes = sceRtcGetTickResolution();
+
+    sceRtcGetCurrentTick(&lastTick);
+
     Material      ivory(1.0, Vec4f(0.6,  0.3, 0.1, 0.0), Vec3f(0.4, 0.4, 0.3),   50.);
     Material      glass(1.5, Vec4f(0.0,  0.5, 0.1, 0.8), Vec3f(0.6, 0.7, 0.8),  125.);
     Material red_rubber(1.0, Vec4f(0.9,  0.1, 0.0, 0.0), Vec3f(0.3, 0.1, 0.1),   10.);
@@ -178,6 +186,16 @@ int main() {
     pspDebugScreenSetXY(0, 0);
 	pspDebugScreenPrintf("RENDER!\n");
     render(spheres, lights);
+
+
+    u64 finalTick;
+
+    sceRtcGetCurrentTick(&finalTick);
+    double dt = ((double)finalTick - (double)lastTick) / (double)tickRes;
+
+    pspDebugScreenPrintf("BENCHMARK TIME: %.3f seconds", dt);
+
+    sceKernelDelayThread(1000 * 1000);
 
     sceKernelExitGame();
     return 0;
