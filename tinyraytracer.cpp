@@ -46,6 +46,7 @@ struct Sphere {
 #include <pspkernel.h>
 #include <pspdebug.h>
 #include <psprtc.h>
+#include <psppower.h>
 
 PSP_MODULE_INFO("TinyRayTracer", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_VFPU | THREAD_ATTR_USER);
@@ -122,6 +123,8 @@ Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &s
     return material.diffuse_color * diffuse_light_intensity * material.albedo[0] + Vec3f(1., 1., 1.)*specular_light_intensity * material.albedo[1] + reflect_color*material.albedo[2] + refract_color*material.albedo[3];
 }
 
+
+u64 finalTick;
 void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights) {
     const int   width    = 480;
     const int   height   = 272;
@@ -137,6 +140,8 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
             framebuffer[i+j*width] = cast_ray(Vec3f(0,0,0), Vec3f(dir_x, dir_y, dir_z).normalize(), spheres, lights);
         }
     }
+
+    sceRtcGetCurrentTick(&finalTick);
 
     pspDebugScreenPrintf("OUTPUT!\n");
     std::ofstream ofs; // save the framebuffer to file
@@ -159,6 +164,7 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
 
 int main() {
 
+    scePowerSetClockFrequency(333, 333, 166);
     pspDebugScreenInit();
 
     u32 tickRes;
@@ -189,9 +195,7 @@ int main() {
     render(spheres, lights);
 
 
-    u64 finalTick;
 
-    sceRtcGetCurrentTick(&finalTick);
     double dt = ((double)finalTick - (double)lastTick) / (double)tickRes;
 
     pspDebugScreenPrintf("BENCHMARK TIME: %.3f seconds", dt);
