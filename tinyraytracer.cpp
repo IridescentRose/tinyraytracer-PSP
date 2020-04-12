@@ -153,6 +153,7 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
     pspDebugScreenPrintf("OPEN FILE!\n");
     ofs << "P6\n" << width << " " << height << "\n255\n";
     pspDebugScreenPrintf("HEADER!\n");
+    pspDebugScreenPrintf("WRITING!\n");
     for (size_t i = 0; i < height*width; ++i) {
         Vec3f &c = framebuffer[i];
         float max = std::max(c[0], std::max(c[1], c[2]));
