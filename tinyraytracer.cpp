@@ -45,9 +45,8 @@ struct Sphere {
 
 #include <pspkernel.h>
 #include <pspdebug.h>
-#include <pspmath.h>
 
-PSP_MODULE_INFO("Stardust", 0, 1, 0);
+PSP_MODULE_INFO("TinyRayTracer", 0, 1, 0);
 PSP_MAIN_THREAD_ATTR(THREAD_ATTR_VFPU | THREAD_ATTR_USER);
 PSP_HEAP_SIZE_KB(-1024);
 
@@ -123,14 +122,15 @@ Vec3f cast_ray(const Vec3f &orig, const Vec3f &dir, const std::vector<Sphere> &s
 }
 
 void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights) {
-    const int   width    = 1024;
-    const int   height   = 768;
+    const int   width    = 480;
+    const int   height   = 272;
     const float fov      = M_PI/3.;
     std::vector<Vec3f> framebuffer(width*height);
+    pspDebugScreenPrintf("INIT RENDER!\n");
 
-    #pragma omp parallel for
     for (size_t j = 0; j<height; j++) { // actual rendering loop
         for (size_t i = 0; i<width; i++) {
+            pspDebugScreenPrintf("PIXEL: %d %d!\n", j, i);
             float dir_x =  (i + 0.5) -  width/2.;
             float dir_y = -(j + 0.5) + height/2.;    // this flips the image at the same time
             float dir_z = -height/(2.*tan(fov/2.));
@@ -138,10 +138,16 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
         }
     }
 
+    pspDebugScreenPrintf("OUTPUT!\n");
     std::ofstream ofs; // save the framebuffer to file
     ofs.open("./out.ppm",std::ios::binary);
+
+    pspDebugScreenPrintf("OPEN FILE!\n");
     ofs << "P6\n" << width << " " << height << "\n255\n";
+    pspDebugScreenPrintf("HEADER!\n");
     for (size_t i = 0; i < height*width; ++i) {
+
+        pspDebugScreenPrintf("WRITE %d!\n", i);
         Vec3f &c = framebuffer[i];
         float max = std::max(c[0], std::max(c[1], c[2]));
         if (max>1) c = c*(1./max);
@@ -150,9 +156,12 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
         }
     }
     ofs.close();
+    pspDebugScreenPrintf("CLOSE!\n");
 }
 
 int main() {
+
+    pspDebugScreenInit();
     Material      ivory(1.0, Vec4f(0.6,  0.3, 0.1, 0.0), Vec3f(0.4, 0.4, 0.3),   50.);
     Material      glass(1.5, Vec4f(0.0,  0.5, 0.1, 0.8), Vec3f(0.6, 0.7, 0.8),  125.);
     Material red_rubber(1.0, Vec4f(0.9,  0.1, 0.0, 0.0), Vec3f(0.3, 0.1, 0.1),   10.);
@@ -168,9 +177,12 @@ int main() {
     lights.push_back(Light(Vec3f(-20, 20,  20), 1.5));
     lights.push_back(Light(Vec3f( 30, 50, -25), 1.8));
     lights.push_back(Light(Vec3f( 30, 20,  30), 1.7));
-
+		
+    pspDebugScreenSetXY(0, 0);
+	pspDebugScreenPrintf("RENDER!\n");
     render(spheres, lights);
 
+    sceKernelExitGame();
     return 0;
 }
 
